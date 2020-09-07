@@ -1,5 +1,6 @@
 package quartz;
 
+import converter.DateConverter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,7 +25,7 @@ public class SqlRuParse {
             Element href = td.child(0);
             System.out.println(href.attr("href"));
             System.out.println(href.text());
-            System.out.println(td.lastElementSibling().text());
+            System.out.println(DateConverter.convertStringToDate(td.lastElementSibling().text()));
         }
     }
 }
