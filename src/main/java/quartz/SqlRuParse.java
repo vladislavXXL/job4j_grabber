@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import propsloader.PropertyLoader;
 
 /**
  * Class SqlRuPars.
@@ -19,13 +20,21 @@ public class SqlRuParse {
      * @throws Exception thrown exception
      */
     public static void main(String[] args) throws Exception {
-        Document doc = Jsoup.connect("http://www.sql.ru/forum/job-offers").get();
-        Elements row = doc.select(".postslisttopic");
-        for (Element td: row) {
-            Element href = td.child(0);
-            System.out.println(href.attr("href"));
-            System.out.println(href.text());
-            System.out.println(DateConverter.convertStringToDate(td.lastElementSibling().text()));
+        int pages = Integer.parseInt(PropertyLoader.getProps().getProperty("parse.pages"));
+        boolean isReady = false;
+        int numPage = 1;
+        while (!isReady) {
+            if (pages < 1 || numPage == pages) {
+                isReady = true;
+            }
+            Document doc = Jsoup.connect("http://www.sql.ru/forum/job-offers/" + numPage++).get();
+            Elements row = doc.select(".postslisttopic");
+            for (Element td : row) {
+                Element href = td.child(0);
+                System.out.println(href.attr("href"));
+                System.out.println(href.text());
+                System.out.println(DateConverter.convertStringToDate(td.lastElementSibling().text()));
+            }
         }
     }
 }

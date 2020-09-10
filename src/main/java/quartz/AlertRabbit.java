@@ -11,14 +11,13 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import propsloader.PropertyLoader;
 
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Properties;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -41,9 +40,9 @@ public class AlertRabbit {
     public static void main(String[] args) {
         try (
             Connection conn = DriverManager.getConnection(
-                    getProps().getProperty("db.url"),
-                    getProps().getProperty("db.user"),
-                    getProps().getProperty("db.password"))
+                    PropertyLoader.getProps().getProperty("db.url"),
+                    PropertyLoader.getProps().getProperty("db.user"),
+                    PropertyLoader.getProps().getProperty("db.password"))
         ) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
@@ -54,7 +53,7 @@ public class AlertRabbit {
                     .build();
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(Integer.parseInt(
-                            getProps().getProperty("rabbit.interval"))
+                            PropertyLoader.getProps().getProperty("rabbit.interval"))
                     ).repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -89,20 +88,6 @@ public class AlertRabbit {
             } catch (SQLException e) {
                 LOG.error(e.getMessage(), e);
             }
-        }
-    }
-
-    /**
-     * Method to get properties to read parameters.
-     * @return Properties instance
-     */
-    private static Properties getProps() {
-        Properties props = new Properties();
-        try (InputStream in = AlertRabbit.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
-            props.load(in);
-            return props;
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
         }
     }
 }
