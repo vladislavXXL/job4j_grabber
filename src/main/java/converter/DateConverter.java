@@ -50,7 +50,7 @@ public class DateConverter {
             year = date[2].trim();
         } else {
             LocalDate ld = new Date().toInstant().atZone(ZoneId.of("Europe/Moscow")).toLocalDate();
-            month = String.valueOf(ld.getDayOfMonth() + 1);
+            month = String.valueOf(ld.getMonthValue());
             year = String.valueOf(ld.getYear());
             if (arr[0].trim().startsWith("сегодня")) {
                 day = String.valueOf(ld.getDayOfMonth());

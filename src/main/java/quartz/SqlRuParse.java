@@ -31,10 +31,24 @@ public class SqlRuParse {
             Elements row = doc.select(".postslisttopic");
             for (Element td : row) {
                 Element href = td.child(0);
-                System.out.println(href.attr("href"));
+                String url = href.attr("href");
+                System.out.println(url);
                 System.out.println(href.text());
                 System.out.println(DateConverter.convertStringToDate(td.lastElementSibling().text()));
+                getPostDetails(url);
             }
         }
+    }
+
+    /**
+     * Method to get post details.
+     * @param url value
+     * @throws Exception thrown exception
+     */
+    private static void getPostDetails(String url) throws Exception {
+        Document doc = Jsoup.connect(url).get();
+        String author = doc.select(".msgBody a").get(0).text();
+        String description = doc.select(".msgBody").get(1).text();
+        System.out.printf("Author: %s\nDescription: %s\n", author, description);
     }
 }
