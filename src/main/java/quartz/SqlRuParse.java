@@ -1,11 +1,20 @@
 package quartz;
 
 import converter.DateConverter;
+import models.Post;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import propsloader.PropertyLoader;
+
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Class SqlRuPars.
@@ -13,13 +22,17 @@ import propsloader.PropertyLoader;
  * @version 1
  * @since 03.09.2020
  */
-public class SqlRuParse {
+public class SqlRuParse implements Parse {
+    /** Logger instance field.*/
+    private static final Logger LOG = LoggerFactory.getLogger(SqlRuParse.class.getName());
+
     /**
-     * Entry point.
-     * @param args args
-     * @throws Exception thrown exception
+     * Method gets all post list.
+     * @param link value
+     * @return resulting Post instances list
      */
-    public static void main(String[] args) throws Exception {
+    public List<Post> list(String link) {
+        List<Post> result = new ArrayList<>();
         int pages = Integer.parseInt(PropertyLoader.getProps().getProperty("parse.pages"));
         boolean isReady = false;
         int numPage = 1;
@@ -27,28 +40,42 @@ public class SqlRuParse {
             if (pages < 1 || numPage == pages) {
                 isReady = true;
             }
-            Document doc = Jsoup.connect("http://www.sql.ru/forum/job-offers/" + numPage++).get();
+            Document doc = null;
+            try {
+                //doc = Jsoup.connect("http://www.sql.ru/forum/job-offers/" + numPage++).get();
+                doc = Jsoup.connect(link + numPage++).get();
+            } catch (IOException ioe) {
+                LOG.error(ioe.getMessage(), ioe);
+            }
             Elements row = doc.select(".postslisttopic");
             for (Element td : row) {
                 Element href = td.child(0);
                 String url = href.attr("href");
-                System.out.println(url);
-                System.out.println(href.text());
-                System.out.println(DateConverter.convertStringToDate(td.lastElementSibling().text()));
-                getPostDetails(url);
+                LOG.info(url);
+                result.add(detail(url));
             }
         }
+        return result;
     }
 
     /**
-     * Method to get post details.
-     * @param url value
-     * @throws Exception thrown exception
+     * Method loads details of particular post.
+     * @param link value
+     * @return Post instance
      */
-    private static void getPostDetails(String url) throws Exception {
-        Document doc = Jsoup.connect(url).get();
+    @Override
+    public Post detail(String link) {
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(link).get();
+        } catch (IOException ioe) {
+            LOG.error(ioe.getMessage(), ioe);
+        }
+        String title = doc.select(".messageHeader").get(0).text();
         String author = doc.select(".msgBody a").get(0).text();
         String description = doc.select(".msgBody").get(1).text();
-        System.out.printf("Author: %s\nDescription: %s\n", author, description);
+        String date = doc.select(".msgFooter").get(0).text().split("\\[")[0].trim();
+        Date convDate = DateConverter.convertStringToDate(date);
+        return new Post(link, title, author, description, new Timestamp(convDate.getTime()));
     }
 }

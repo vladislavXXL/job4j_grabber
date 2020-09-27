@@ -1,6 +1,8 @@
 package converter;
 
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +18,9 @@ import java.util.Map;
  * @since 09.09.2020
  */
 public class DateConverter {
+    /** Logger instance field.*/
+    private static final Logger LOG = LoggerFactory.getLogger(DateConverter.class.getName());
+
     /** Map with months names and corresponding numbers.*/
     private static final Map<String, Integer> MONTHS = ImmutableMap.<String, Integer>builder()
             .put("янв", 1)
@@ -38,7 +43,7 @@ public class DateConverter {
      * @return result - converted date
      * @throws ParseException possible exception
      */
-    public static Date convertStringToDate(String val) throws ParseException {
+    public static Date convertStringToDate(String val) {
         String day = "";
         String month = "";
         String year = "";
@@ -59,8 +64,12 @@ public class DateConverter {
             }
         }
         SimpleDateFormat formatter = new SimpleDateFormat("dd M yy, HH:mm");
-        return formatter.parse(
-                String.format("%s %s %s, %s", day, month, year, arr[1].trim())
-        );
+        Date result = null;
+        try {
+            result = formatter.parse(String.format("%s %s %s, %s", day, month, year, arr[1].trim()));
+        } catch (ParseException pe) {
+            LOG.error(pe.getMessage(), pe);
+        }
+        return result;
     }
 }
