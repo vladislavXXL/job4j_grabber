@@ -22,4 +22,11 @@ public interface Store {
      * @return result list of posts
      */
     List<Post> getAll();
+
+    /**
+     * Method to find post by id.
+     * @param id value
+     * @return result Post instance
+     */
+    Post findById(String id);
 }

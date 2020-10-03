@@ -18,6 +18,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Properties;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -38,11 +39,12 @@ public class AlertRabbit {
      * @param args args
      */
     public static void main(String[] args) {
+        Properties props = PropertyLoader.getProps("rabbit.properties");
         try (
             Connection conn = DriverManager.getConnection(
-                    PropertyLoader.getProps().getProperty("db.url"),
-                    PropertyLoader.getProps().getProperty("db.user"),
-                    PropertyLoader.getProps().getProperty("db.password"))
+                    props.getProperty("db.url"),
+                    props.getProperty("db.user"),
+                    props.getProperty("db.password"))
         ) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
@@ -53,7 +55,7 @@ public class AlertRabbit {
                     .build();
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(Integer.parseInt(
-                            PropertyLoader.getProps().getProperty("rabbit.interval"))
+                            props.getProperty("rabbit.interval"))
                     ).repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()

@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Class SqlRuPars.
@@ -33,7 +34,8 @@ public class SqlRuParse implements Parse {
      */
     public List<Post> list(String link) {
         List<Post> result = new ArrayList<>();
-        int pages = Integer.parseInt(PropertyLoader.getProps().getProperty("parse.pages"));
+        Properties props = PropertyLoader.getProps("rabbit.properties");
+        int pages = Integer.parseInt(props.getProperty("parse.pages"));
         boolean isReady = false;
         int numPage = 1;
         while (!isReady) {

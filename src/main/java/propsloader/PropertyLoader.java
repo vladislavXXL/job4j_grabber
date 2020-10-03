@@ -13,11 +13,12 @@ import java.util.Properties;
 public class PropertyLoader {
     /**
      * Method to get properties to read parameters.
+     * @param fileName file property name
      * @return Properties instance
      */
-    public static Properties getProps() {
+    public static Properties getProps(String fileName) {
         Properties result = new Properties();
-        try (InputStream in = PropertyLoader.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
+        try (InputStream in = PropertyLoader.class.getClassLoader().getResourceAsStream(fileName)) {
             result.load(in);
             return result;
         } catch (IOException e) {
