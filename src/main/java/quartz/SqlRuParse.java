@@ -34,7 +34,7 @@ public class SqlRuParse implements Parse {
      */
     public List<Post> list(String link) {
         List<Post> result = new ArrayList<>();
-        Properties props = PropertyLoader.getProps("rabbit.properties");
+        Properties props = PropertyLoader.getProps("app.properties");
         int pages = Integer.parseInt(props.getProperty("parse.pages"));
         boolean isReady = false;
         int numPage = 1;
